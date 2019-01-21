@@ -15,21 +15,25 @@ public class Triangle {
     //vec4:4维向量  包含4个基本类型数据
     private final String vertexShaderCode =
             "uniform mat4 uMVPMatrix;" +
-            "attribute vec4 vPosition;"
+                    "attribute vec4 vPosition;" +
+                    "varying  vec4 vColor;" +
+                    "attribute vec4 aColor;"
                     + "void main() {"
                     + "  gl_Position = uMVPMatrix * vPosition;"
+                    + "  vColor=aColor;"
                     + "}";
     //在片元着色器(fragment shader)最开始的地方加上 precision mediump float; 便设定了默认的精度.这样所有没有显式表明精度的变量 都会按照设定好的默认精度来处理.
     //uniform:顶点片元共享，但不常修改的修饰符
     //gl_FragColor:只读输入，窗口的x,y,z和1/w
     private final String fragmentShaderCode =
             "precision mediump float;"
-                    + "uniform vec4 vColor;"
+                    + "varying vec4 vColor;"
                     + "void main() {"
                     + "  gl_FragColor = vColor;"
                     + "}";
 
     private FloatBuffer vertexBuffer;//float字节缓冲区
+    private FloatBuffer colorBuffer;//float字节缓冲区
 
     // 数组中每个顶点的坐标数量
     static final int COORDS_PER_VERTEX = 3;
@@ -39,6 +43,12 @@ public class Triangle {
             0.5f, -0.5f, 0.0f
     };
 
+    float vertexColor[] = {
+            1.0f, 0f, 0f, 1.0f,
+            0f, 1.0f, 0f, 1.0f,
+            0f, 0f, 1.0f, 1.0f
+    };
+
     // Set color with red, green, blue and alpha (opacity) values
     float color[] = {255, 255, 255, 1.0f};//argb
     private final int mProgram;
@@ -46,7 +56,7 @@ public class Triangle {
     private int mMVPMatrixHandle;
     private int mColorHandle;
     private final int vertexCount = triangleCoords.length / COORDS_PER_VERTEX;//顶点的个数
-    private final int vertexStride = COORDS_PER_VERTEX * (Float.SIZE/Byte.SIZE); // 每个顶点的字节大小
+    private final int vertexStride = COORDS_PER_VERTEX * (Float.SIZE / Byte.SIZE); // 每个顶点的字节大小
 
     public Triangle() {
         ByteBuffer bb = ByteBuffer.allocateDirect(triangleCoords.length * 4);
@@ -67,6 +77,12 @@ public class Triangle {
         //重置下标，读取第一个坐标
         vertexBuffer.position(0);
 
+        ByteBuffer cbb = ByteBuffer.allocateDirect(vertexColor.length * 4);
+        cbb.order(ByteOrder.nativeOrder());
+        colorBuffer = cbb.asFloatBuffer();
+        colorBuffer.put(vertexColor);
+        colorBuffer.position(0);
+
         int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
         int fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
         // 创建空的OpenGL ES程序
@@ -79,6 +95,7 @@ public class Triangle {
         GLES20.glLinkProgram(mProgram);
 
     }
+
     //创建着色器
     public int loadShader(int type, String shaderCode) {
         int shader = GLES20.glCreateShader(type);
@@ -96,14 +113,17 @@ public class Triangle {
         GLES20.glEnableVertexAttribArray(mPositionHandle);
         //准备三角形坐标数据
         GLES20.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX, GLES20.GL_FLOAT, false, vertexStride, vertexBuffer);
+        mColorHandle = GLES20.glGetAttribLocation(mProgram, "aColor");
+        GLES20.glEnableVertexAttribArray(mColorHandle);
+        GLES20.glVertexAttribPointer(mColorHandle, 4, GLES20.GL_FLOAT, false, 0, colorBuffer);
         // 获取片段着色器的颜色的句柄
         mColorHandle = GLES20.glGetUniformLocation(mProgram, "vColor");
         // 设置绘制三角形的颜色
-        GLES20.glUniform4fv(mColorHandle, 1, color, 0);
+        GLES20.glUniform4fv(mColorHandle, 1, colorBuffer);
         // 得到形状的变换矩阵的句柄
-        mMVPMatrixHandle=GLES20.glGetUniformLocation(mProgram,"uMVPMatrix");
+        mMVPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix");
         // 将投影和视图转换传递给着色器
-        GLES20.glUniformMatrix4fv(mMVPMatrixHandle,1,false,mvpMatrix,0);
+        GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mvpMatrix, 0);
         // 绘制三角形
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount);
         // 禁用顶点数组

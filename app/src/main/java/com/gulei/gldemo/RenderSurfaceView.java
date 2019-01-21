@@ -4,6 +4,7 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
+import android.os.SystemClock;
 import android.util.AttributeSet;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -18,6 +19,8 @@ public class RenderSurfaceView extends GLSurfaceView implements GLSurfaceView.Re
     float[] mProjectionMatrix = new float[16]; //[4*4]的透视投影变换矩阵
     private float[] mViewMatrix = new float[16];  //[4*4]的相机视图变换矩阵
     private float[] mMVPMatrix = new float[16];//用于存储变换矩阵结果的总变换矩阵[4*4]
+    private float[] mRotationMatrix = new float[16];
+    private float[] scratch;
 
     public RenderSurfaceView(Context context) {
         this(context, null);
@@ -71,9 +74,7 @@ public class RenderSurfaceView extends GLSurfaceView implements GLSurfaceView.Re
          * float centerX,float centerY,float centerZ, //观察点位置
          * float upX,float upY,float upZ) //up向量在xyz上的分量
          */
-        Matrix.setLookAtM(mViewMatrix,0, 0, 0, -3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
-
-
+        Matrix.setLookAtM(mViewMatrix, 0, 0, 0, -3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
         /**
          * Matrix.multiplyMM (float[] result, //接收相乘结果
          * int resultOffset, //接收矩阵的起始位置（偏移量）
@@ -83,9 +84,14 @@ public class RenderSurfaceView extends GLSurfaceView implements GLSurfaceView.Re
          * int rhsOffset) //右矩阵的起始位置（偏移量）
          */
         //将相机视图和投影设置的数据相乘，便得到一个转换矩阵，然后我们再讲此矩阵传给顶点着色器
-        Matrix.multiplyMM(mMVPMatrix,0,mProjectionMatrix,0,mViewMatrix,0);
-
-        mTriangle.draw(mMVPMatrix);
+        Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
+        // 创建一个旋转矩阵
+        scratch = new float[16];
+        long time = SystemClock.uptimeMillis() % 4000L;
+        float angle = 0.09f * ((int) time);
+        Matrix.setRotateM(mRotationMatrix, 0, angle, 0, 0, -1.0f);
+        Matrix.multiplyMM(scratch, 0, mMVPMatrix, 0, mRotationMatrix, 0);
+        mTriangle.draw(scratch);
 
     }
 }
