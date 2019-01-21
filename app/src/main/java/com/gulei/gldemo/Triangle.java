@@ -14,9 +14,10 @@ public class Triangle {
     //attribute：用于顶点着色器当中经常修改的参数
     //vec4:4维向量  包含4个基本类型数据
     private final String vertexShaderCode =
+            "uniform mat4 uMVPMatrix;" +
             "attribute vec4 vPosition;"
-                    + "void main() {" +
-                    "  gl_Position = vPosition;"
+                    + "void main() {"
+                    + "  gl_Position = uMVPMatrix * vPosition;"
                     + "}";
     //在片元着色器(fragment shader)最开始的地方加上 precision mediump float; 便设定了默认的精度.这样所有没有显式表明精度的变量 都会按照设定好的默认精度来处理.
     //uniform:顶点片元共享，但不常修改的修饰符
@@ -27,7 +28,6 @@ public class Triangle {
                     + "void main() {"
                     + "  gl_FragColor = vColor;"
                     + "}";
-
 
     private FloatBuffer vertexBuffer;//float字节缓冲区
 
@@ -43,9 +43,10 @@ public class Triangle {
     float color[] = {255, 255, 255, 1.0f};//argb
     private final int mProgram;
     private int mPositionHandle;
+    private int mMVPMatrixHandle;
     private int mColorHandle;
     private final int vertexCount = triangleCoords.length / COORDS_PER_VERTEX;//顶点的个数
-    private final int vertexStride = COORDS_PER_VERTEX * 4; // 每个顶点的字节大小
+    private final int vertexStride = COORDS_PER_VERTEX * (Float.SIZE/Byte.SIZE); // 每个顶点的字节大小
 
     public Triangle() {
         ByteBuffer bb = ByteBuffer.allocateDirect(triangleCoords.length * 4);
@@ -78,7 +79,7 @@ public class Triangle {
         GLES20.glLinkProgram(mProgram);
 
     }
-
+    //创建着色器
     public int loadShader(int type, String shaderCode) {
         int shader = GLES20.glCreateShader(type);
         GLES20.glShaderSource(shader, shaderCode);
@@ -86,7 +87,7 @@ public class Triangle {
         return shader;
     }
 
-    public void draw() {
+    public void draw(float[] mvpMatrix) {
         // 将程序添加到OpenGL ES环境
         GLES20.glUseProgram(mProgram);
         // 获取顶点着色器的位置的句柄
@@ -99,6 +100,10 @@ public class Triangle {
         mColorHandle = GLES20.glGetUniformLocation(mProgram, "vColor");
         // 设置绘制三角形的颜色
         GLES20.glUniform4fv(mColorHandle, 1, color, 0);
+        // 得到形状的变换矩阵的句柄
+        mMVPMatrixHandle=GLES20.glGetUniformLocation(mProgram,"uMVPMatrix");
+        // 将投影和视图转换传递给着色器
+        GLES20.glUniformMatrix4fv(mMVPMatrixHandle,1,false,mvpMatrix,0);
         // 绘制三角形
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, vertexCount);
         // 禁用顶点数组
