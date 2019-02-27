@@ -4,7 +4,6 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
-import android.os.SystemClock;
 import android.util.AttributeSet;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -16,6 +15,10 @@ import javax.microedition.khronos.opengles.GL10;
 
 public class RenderSurfaceView extends GLSurfaceView implements GLSurfaceView.Renderer {
     Triangle mTriangle;
+    Square mSquare;
+    Circle mCircle;
+    SolidSquare mSolidSquare;
+    private Context context;
     float[] mProjectionMatrix = new float[16]; //[4*4]的透视投影变换矩阵
     private float[] mViewMatrix = new float[16];  //[4*4]的相机视图变换矩阵
     private float[] mMVPMatrix = new float[16];//用于存储变换矩阵结果的总变换矩阵[4*4]
@@ -28,9 +31,13 @@ public class RenderSurfaceView extends GLSurfaceView implements GLSurfaceView.Re
 
     public RenderSurfaceView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        this.context = context;
         //选择OpenGL ES 2.0 context
         setEGLContextClientVersion(2);
+        //设置渲染器
         setRenderer(this);
+        // 设置渲染模式为连续模式GLSurfaceView.RENDERMODE_CONTINUOUSLY)(会以60fps的速度刷新)  默认为RENDERMODE_CONTINUOUSLY
+        setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
     }
 
     @Override
@@ -38,6 +45,10 @@ public class RenderSurfaceView extends GLSurfaceView implements GLSurfaceView.Re
         //清除颜色缓冲区时指定RGBA值（也就是所有的颜色都会被替换成指定的RGBA值）。每个值的取值范围都是0.0~1.0，超出范围的将被截断。
         GLES20.glClearColor(0f, 0f, 0f, 1f);
         mTriangle = new Triangle();
+        mSquare = new Square(context);
+        mCircle = new Circle(context);
+
+        mSolidSquare = new SolidSquare(context);
     }
 
     @Override
@@ -59,13 +70,10 @@ public class RenderSurfaceView extends GLSurfaceView implements GLSurfaceView.Re
          * float near, //相对观察点近面距离
          * float far) //相对观察点远面距离
          */
-        Matrix.frustumM(mProjectionMatrix, 0, -ratio, ratio, -1, 1, 3, 7);
-    }
+//        Matrix.frustumM(mProjectionMatrix, 0, -ratio, ratio, -1, 1, 3, 7);
+        //立方体需要调节相机视图和透视投影
+        Matrix.frustumM(mProjectionMatrix, 0, -ratio, ratio, -1, 1, 3, 20);
 
-    @Override
-    public void onDrawFrame(GL10 gl) {
-        // 重绘背景色
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
         //定义一个相机视图
         /**
          * Matrix.setLookAtM (float[] rm, //接收相机变换矩阵
@@ -74,7 +82,9 @@ public class RenderSurfaceView extends GLSurfaceView implements GLSurfaceView.Re
          * float centerX,float centerY,float centerZ, //观察点位置
          * float upX,float upY,float upZ) //up向量在xyz上的分量
          */
-        Matrix.setLookAtM(mViewMatrix, 0, 0, 0, -3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+//        Matrix.setLookAtM(mViewMatrix, 0, 0, 0, 7.0f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+        Matrix.setLookAtM(mViewMatrix, 0, 5.0f, 5.0f, 10.0f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+
         /**
          * Matrix.multiplyMM (float[] result, //接收相乘结果
          * int resultOffset, //接收矩阵的起始位置（偏移量）
@@ -85,13 +95,23 @@ public class RenderSurfaceView extends GLSurfaceView implements GLSurfaceView.Re
          */
         //将相机视图和投影设置的数据相乘，便得到一个转换矩阵，然后我们再讲此矩阵传给顶点着色器
         Matrix.multiplyMM(mMVPMatrix, 0, mProjectionMatrix, 0, mViewMatrix, 0);
-        // 创建一个旋转矩阵
-        scratch = new float[16];
-        long time = SystemClock.uptimeMillis() % 4000L;
-        float angle = 0.09f * ((int) time);
-        Matrix.setRotateM(mRotationMatrix, 0, angle, 0, 0, -1.0f);
-        Matrix.multiplyMM(scratch, 0, mMVPMatrix, 0, mRotationMatrix, 0);
-        mTriangle.draw(scratch);
+    }
 
+    @Override
+    public void onDrawFrame(GL10 gl) {
+        // 重绘背景色
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+
+        // 创建一个旋转矩阵
+//        scratch = new float[16];
+//        long time = SystemClock.uptimeMillis() % 4000L;
+//        float angle = 0.09f * ((int) time);
+//        Matrix.setRotateM(mRotationMatrix, 0, angle, 0, 0, -1.0f);
+//        Matrix.multiplyMM(scratch, 0, mMVPMatrix, 0, mRotationMatrix, 0);
+//        mTriangle.draw(scratch);
+//        mTriangle.draw(mMVPMatrix);
+//        mSquare.draw(mMVPMatrix);
+//        mCircle.draw(mMVPMatrix);
+        mSolidSquare.draw(mMVPMatrix);
     }
 }
