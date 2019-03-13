@@ -18,6 +18,7 @@ public class CustomGlSurface extends GLSurfaceView{
         setEGLContextClientVersion(2);
         setRenderer(new BitmapRender(this));
         // 设置渲染模式为连续模式(会以60fps的速度刷新)  默认为RENDERMODE_CONTINUOUSLY
+        //RENDERMODE_WHEN_DIRTY时，仅在创建曲面时或在调用requestRender时才渲染渲染器
         setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
         requestRender();
     }

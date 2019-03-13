@@ -3,6 +3,8 @@ package com.gulei.gldemo;
 import android.content.Context;
 import android.opengl.GLES20;
 
+import com.gulei.gldemo.util.Utils;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;

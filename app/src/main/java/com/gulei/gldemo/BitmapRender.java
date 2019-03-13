@@ -7,6 +7,8 @@ import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.view.View;
 
+import com.gulei.gldemo.util.Utils;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;

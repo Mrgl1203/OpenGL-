@@ -1,4 +1,4 @@
-package com.gulei.gldemo;
+package com.gulei.gldemo.util;
 
 import android.content.Context;
 import android.content.res.AssetManager;
