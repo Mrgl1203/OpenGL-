@@ -10,6 +10,7 @@ import com.gulei.gldemo.activity.SGLActivity;
 import com.gulei.gldemo.activity.ShapeActivity;
 
 //参考博客：https://blog.csdn.net/qq_32175491/article/details/79091647
+//https://blog.csdn.net/junzia/article/details/52820177
 public class MainActivity extends AppCompatActivity {
 
     @Override

@@ -23,18 +23,19 @@ public class SGLView extends GLSurfaceView {
     public SGLView(Context context, AttributeSet attrs) {
         super(context, attrs);
         setEGLContextClientVersion(2);
-        render = new SGLRender(this, new ColorFilter(getContext(), ColorFilter.Filter.GRAY));
+        render = new SGLRender(this, new ColorFilter(getContext(), ColorFilter.Filter.NONE));
         setRenderer(render);
         setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
         render.setBitmap(BitmapFactory.decodeResource(getResources(), R.mipmap.fengj));
         requestRender();
     }
 
-    public SGLRender getRender(){
+    public SGLRender getRender() {
         return render;
     }
 
-    public void setFilter(AFilter filter){
+    public void setFilter(AFilter filter) {
         render.setFilter(filter);
+        requestRender();
     }
 }
