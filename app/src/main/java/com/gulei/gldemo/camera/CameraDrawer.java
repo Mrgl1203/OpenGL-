@@ -10,6 +10,7 @@ import javax.microedition.khronos.opengles.GL10;
  */
 
 public class CameraDrawer implements GLSurfaceView.Renderer {
+
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 

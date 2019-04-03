@@ -26,7 +26,8 @@
         </activity>
         <activity android:name=".activity.ShapeActivity" />
         <activity android:name=".activity.BitmapActivity" />
-        <activity android:name=".activity.SGLActivity"></activity>
+        <activity android:name=".activity.SGLActivity" />
+        <activity android:name=".activity.GpuImageActivity"></activity>
     </application>
 
 </manifest>
