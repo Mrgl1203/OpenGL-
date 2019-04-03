@@ -207,7 +207,7 @@ public abstract class AFilter {
     }
 
     protected final void createProgramByAssetsFile(String vertex, String fragment) {
-        SharderUtils.createProgram(mRes, vertex, fragment);
+        createProgram(SharderUtils.loadFromAssetsFile(vertex,mRes),SharderUtils.loadFromAssetsFile(fragment,mRes));
     }
 
     /**

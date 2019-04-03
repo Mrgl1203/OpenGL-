@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.gulei.gldemo.activity.BitmapActivity;
+import com.gulei.gldemo.activity.CameraActivity;
 import com.gulei.gldemo.activity.GpuImageActivity;
 import com.gulei.gldemo.activity.SGLActivity;
 import com.gulei.gldemo.activity.ShapeActivity;
@@ -61,6 +62,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void GpuImageChange(View view) {
         Intent intent = new Intent(MainActivity.this, GpuImageActivity.class);
+        startActivity(intent);
+    }
+
+    public void toCamera(View view) {
+        Intent intent = new Intent(MainActivity.this, CameraActivity.class);
         startActivity(intent);
     }
 }
