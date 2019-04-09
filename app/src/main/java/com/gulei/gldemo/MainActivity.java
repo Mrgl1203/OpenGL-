@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+
     public void toCamera(View view) {
         Intent intent = new Intent(MainActivity.this, CameraActivity.class);
         startActivity(intent);

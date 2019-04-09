@@ -63,7 +63,9 @@ public abstract class AFilter {
     protected ShortBuffer mindexBuffer;
 
     protected int mFlag = 0;
-
+    /**
+     * 使用这种方法复制数组时，默认从源数组的第一个元素（索引值为 0）开始复制，目标数组的长度将为 length。如果 length 大于 srcArray.length，则目标数组中采用默认值填充；如果 length 小于 srcArray.length，则复制到第 length 个元素（索引值为 length-1）即止。
+     */
     private float[] matrix = Arrays.copyOf(OM, 16);
 
     private int textureType = 0;      //默认使用Texture2D0

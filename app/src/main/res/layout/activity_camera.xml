@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     tools:context="com.gulei.gldemo.activity.CameraActivity">
 
+
     <com.gulei.gldemo.camera.CameraView
         android:id="@+id/mCameraView"
         android:layout_width="match_parent"
