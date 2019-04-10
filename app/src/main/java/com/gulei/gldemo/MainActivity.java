@@ -2,12 +2,14 @@ package com.gulei.gldemo;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
 
 import com.gulei.gldemo.activity.BitmapActivity;
+import com.gulei.gldemo.activity.Camera2Activity;
 import com.gulei.gldemo.activity.CameraActivity;
 import com.gulei.gldemo.activity.GpuImageActivity;
 import com.gulei.gldemo.activity.SGLActivity;
@@ -24,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_main);
         final RxPermissions rxPermissions = new RxPermissions(this);
         rxPermissions.requestEach(Manifest.permission.CAMERA
@@ -68,6 +71,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void toCamera(View view) {
         Intent intent = new Intent(MainActivity.this, CameraActivity.class);
+        startActivity(intent);
+    }
+
+    public void toCamera2(View view) {
+        Intent intent = new Intent(MainActivity.this, Camera2Activity.class);
         startActivity(intent);
     }
 }
