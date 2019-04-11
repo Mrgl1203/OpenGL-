@@ -7,6 +7,7 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.gulei.gldemo.filter.AFilter;
 import com.gulei.gldemo.filter.GroupFilter;
@@ -82,7 +83,9 @@ public class TextureController implements GLSurfaceView.Renderer {
         return surface;
     }
 
+
     private void init() {
+        //创建自定义的GLSurfaceView
         mGlView = new GLView(mContext);
 
         //GlSurfaceView必须添加到布局中，避免GLView的attachToWindow和detachFromWindow崩溃
@@ -183,6 +186,7 @@ public class TextureController implements GLSurfaceView.Renderer {
     @Override
     public void onDrawFrame(GL10 gl) {
         if (isParamSet.get()) {
+            //获取离屏渲染的纹理数据传递给GroupFilter，继续在其基础上添加纹理
             mEffectFilter.draw();
             mGroupFilter.setTextureId(mEffectFilter.getOutputTexture());
             mGroupFilter.draw();
@@ -190,6 +194,7 @@ public class TextureController implements GLSurfaceView.Renderer {
             //显示传入的texture上，一般是显示在屏幕上
             GLES20.glViewport(0, 0, mWindowSize.x, mWindowSize.y);
             mShowFilter.setMatrix(SM);
+            //绑定最终的组合纹理结果交给单一渲染器直接渲染
             mShowFilter.setTextureId(mGroupFilter.getOutputTexture());
             mShowFilter.draw();
             if (mRenderer != null) {
@@ -281,6 +286,7 @@ public class TextureController implements GLSurfaceView.Renderer {
 
     //读取数据并回调
     private void frameCallback() {
+        //将结果读取到buffer中
         GLES20.glReadPixels(0, 0, frameCallbackWidth, frameCallbackHeight,
                 GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, outPutBuffer[indexOutput]);
         mFrameCallback.onFrame(outPutBuffer[indexOutput].array(), 0);

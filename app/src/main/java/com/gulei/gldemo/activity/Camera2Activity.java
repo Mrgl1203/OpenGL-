@@ -25,12 +25,15 @@ import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.widget.SeekBar;
 import android.widget.Toast;
 
 import com.gulei.gldemo.R;
 import com.gulei.gldemo.camera.FrameCallback;
 import com.gulei.gldemo.camera.Renderer;
 import com.gulei.gldemo.camera.TextureController;
+import com.gulei.gldemo.filter.Beauty;
+import com.gulei.gldemo.filter.LookupFilter;
 import com.gulei.gldemo.filter.ZipPkmAnimationFilter;
 
 import java.io.BufferedOutputStream;
@@ -54,6 +57,9 @@ public class Camera2Activity extends AppCompatActivity implements FrameCallback 
     private Renderer mRenderer;
     private int cameraId = 1;
     private ExecutorService pool = Executors.newSingleThreadExecutor();
+    private LookupFilter mLookupFilter;
+    private Beauty mBeautyFilter;
+    private SeekBar mSeekBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +72,7 @@ public class Camera2Activity extends AppCompatActivity implements FrameCallback 
         }
         setContentView(R.layout.activity_camera2);
         mSurfaceView = findViewById(R.id.SurfaceView);
+        mSeekBar = findViewById(R.id.mSeek);
         mController = new TextureController(Camera2Activity.this);
         onFilterSet(mController);
         mController.setFrameCallback(720, 1280, Camera2Activity.this);
@@ -84,6 +91,23 @@ public class Camera2Activity extends AppCompatActivity implements FrameCallback 
             @Override
             public void surfaceDestroyed(SurfaceHolder holder) {
                 mController.surfaceDestoryed();
+            }
+        });
+        mSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                mLookupFilter.setIntensity(progress/100f);
+                mBeautyFilter.setFlag(progress/20+1);
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
             }
         });
     }
@@ -120,6 +144,12 @@ public class Camera2Activity extends AppCompatActivity implements FrameCallback 
         ZipPkmAnimationFilter mAniFilter = new ZipPkmAnimationFilter(getResources());
         mAniFilter.setAnimation("assets/etczip/cc.zip");
         controller.addFilter(mAniFilter);
+        mLookupFilter = new LookupFilter(getResources());
+        mLookupFilter.setMaskImage("lookup/purity.png");
+        mLookupFilter.setIntensity(0.0f);
+        controller.addFilter(mLookupFilter);
+        mBeautyFilter = new Beauty(getResources());
+        controller.addFilter(mBeautyFilter);
     }
 
     @Override
@@ -129,6 +159,7 @@ public class Camera2Activity extends AppCompatActivity implements FrameCallback 
             public void run() {
                 Bitmap bitmap = Bitmap.createBitmap(720, 1280, Bitmap.Config.ARGB_8888);
                 ByteBuffer b = ByteBuffer.wrap(bytes);
+                //将数组中的数据复制到bitmap中
                 bitmap.copyPixelsFromBuffer(b);
                 saveBitmap(bitmap);
                 bitmap.recycle();

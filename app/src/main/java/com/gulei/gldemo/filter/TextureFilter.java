@@ -10,6 +10,7 @@ import java.nio.ByteBuffer;
 
 /**
  * Created by gl152 on 2019/4/9.
+ * FBO离屏渲染
  */
 
 public class TextureFilter extends AFilter {
@@ -17,8 +18,8 @@ public class TextureFilter extends AFilter {
     private int width = 0;
     private int height = 0;
 
-    private int[] fFrame = new int[1];
-    private int[] fTexture = new int[1];
+    private int[] fFrame = new int[1];              //帧缓冲对象，用于离屏渲染缓冲
+    private int[] fTexture = new int[1];            //作为输出图像的texture
     private int[] mCameraTexture = new int[1];
 
     private SurfaceTexture mSurfaceTexture;
@@ -79,7 +80,7 @@ public class TextureFilter extends AFilter {
             //再将纹理坐标传递给openGl，下次绘制时重置句柄
             mFilter.setCoordMatrix(mCoordOM);
         }
-        //在绘制之前调用这个方法是让我们后续的渲染，渲染到fTexture[0]这个纹理上:FBO离屏渲染
+        //在绘制之前调用这个方法是让我们后续的渲染，渲染到fTexture[0]这个纹理上:FBO离屏渲染，FBO是一个容器，自身不能用于渲染，需要与一些可渲染的缓冲区绑定在一起，像纹理或者渲染缓冲区。
         EasyGlUtils.bindFrameTexture(fFrame[0], fTexture[0]);
         //将相机的数据渲染到屏幕上，我们需要将内容再渲染到制定的窗口上，这里只渲染相机的原始纹理，其他添加的纹理后期离屏处理
         GLES20.glViewport(0, 0, width, height);
@@ -114,7 +115,7 @@ public class TextureFilter extends AFilter {
             deleteFrameBuffer();
             //再重新创建FrameBuffer和Texture
             GLES20.glGenFramebuffers(1, fFrame, 0);
-            //绑定
+            //绑定fTexture纹理
             EasyGlUtils.genTexturesWithParameter(1, fTexture, 0, GLES20.GL_RGBA, width, height);
         }
     }

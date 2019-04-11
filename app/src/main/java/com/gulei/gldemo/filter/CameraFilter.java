@@ -5,6 +5,7 @@ import android.hardware.Camera;
 
 /**
  * Created by gl152 on 2019/4/9.
+ * 继承OesFilter实现基本的Camera预览渲染
  */
 
 public class CameraFilter extends OesFilter {
@@ -18,7 +19,7 @@ public class CameraFilter extends OesFilter {
         movie();
     }
 
-
+    //切换摄像头时传入的CameraId，做一个纹理的切换
     @Override
     public void setFlag(int flag) {
         super.setFlag(flag);
